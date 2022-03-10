@@ -53,6 +53,10 @@ public class AuthorRepositoryTest {
     @Transactional
     public void saveAuthorWithUnidirectionalAssociationDeleteAllRecordsWhenNewBookIsInserted() {
 
+        /*
+            This time Hibernate doesn't delete the associate books to add them back from memory.
+         */
+
         Author author = authorRepository.fetchByName("Joana Nimar");
         Book book = new Book();
         book.setTitle("History Details");
@@ -71,7 +75,12 @@ public class AuthorRepositoryTest {
 
     @Test
     @Transactional
-    public void deletingLastBookWithUnidirectionalAssociationDeletesAllAssociatedBooksFromJunctionTableAndReInsertRemainig() {
+    public void deletingLastBookWithUnidirectionalAssociationDeletesAllAssociatedBooksFromJunctionTableAndReInsertRemaining() {
+
+        /*
+            Looks like @OrderColumn brought some benefits in the case of removing the last book. Hibernate did not delete all the
+            associate books to add the remaining from memory.
+         */
         Author author = authorRepository.fetchByName("Joana Nimar");
         List<Book> books = author.getBooks();
         author.removeBook(books.get(books.size() - 1));
