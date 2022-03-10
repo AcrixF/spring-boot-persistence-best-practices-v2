@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import java.io.Serializable;
@@ -36,8 +37,12 @@ public class Author implements Serializable {
     private String genre;
     private int age;
 
+    /**
+     * Adding the @JoinColumn instructs Hibernate that the @OneToMany association is
+     * capable of controlling the child-table foreign key. The junction table is eliminated.
+     */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "book_order")
+    @JoinColumn(name = "author_id")
     private List<Book> books = new ArrayList<>();
 
     public void addBook(Book book) {

@@ -41,20 +41,24 @@ public class AuthorRepositoryTest {
 
     @Test
     @Transactional
-    public void saveAuthorWithUnidirectionalAssociationLeadsASeparateJunctionTable() {
-       Author author = authorRepository.fetchByName("Joana Nimar");
-       assertThat(author).isNotNull();
-       assertThat(author.getBooks()).isNotNull()
+    public void saveAuthorWithUnidirectionalAssociationAndJoinColumnEliminateTheJunctionTable() {
+
+        /**
+         * Hibernate triggers an UPDATE to set the author_id value when inserting a new record.
+         */
+        Author author = authorRepository.fetchByName("Joana Nimar");
+        assertThat(author).isNotNull();
+        assertThat(author.getBooks()).isNotNull()
                .isNotEmpty()
                .hasSize(3);
     }
 
     @Test
     @Transactional
-    public void saveAuthorWithUnidirectionalAssociationDeleteAllRecordsWhenNewBookIsInserted() {
+    public void saveAuthorWithUnidirectionalAssociationWhenInsertNewRecordOnlyUpdateTheRelation() {
 
-        /*
-            This time Hibernate doesn't delete the associate books to add them back from memory.
+        /**
+         * This still requires an UPDATE statement
          */
 
         Author author = authorRepository.fetchByName("Joana Nimar");
@@ -75,12 +79,9 @@ public class AuthorRepositoryTest {
 
     @Test
     @Transactional
-    public void deletingLastBookWithUnidirectionalAssociationDeletesAllAssociatedBooksFromJunctionTableAndReInsertRemaining() {
+    public void deletingLastBookWithUnidirectionalAssociation() {
 
-        /*
-            Looks like @OrderColumn brought some benefits in the case of removing the last book. Hibernate did not delete all the
-            associate books to add the remaining from memory.
-         */
+
         Author author = authorRepository.fetchByName("Joana Nimar");
         List<Book> books = author.getBooks();
         author.removeBook(books.get(books.size() - 1));
